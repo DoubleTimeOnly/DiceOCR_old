@@ -18,7 +18,8 @@ int main() {
         g_cap >> frame;
         //threshold(frame, 125);
         grayscale = toGrayscale(frame);
-        cv::imshow("Webcam", grayscale);
+        cv::Mat thresholded_image = threshold(grayscale, 128);
+        cv::imshow("Webcam", thresholded_image);
         cv::waitKey(1);
     }
     return 1;

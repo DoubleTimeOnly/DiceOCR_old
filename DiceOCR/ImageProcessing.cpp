@@ -2,8 +2,6 @@
 #include <iostream>
 
 cv::Mat toGrayscale(cv::Mat& src) {
-    int src_rows = src.rows;
-    int src_cols = src.cols;
     int src_channels = src.channels();
 
     cv::Mat grayscale_img;
@@ -11,6 +9,8 @@ cv::Mat toGrayscale(cv::Mat& src) {
         grayscale_img = src.clone();
     }
     else if (src_channels == 3) {
+        int src_rows = src.rows;
+        int src_cols = src.cols;
         grayscale_img.create(src_rows, src_cols, CV_8U);
         uchar r, g, b;
         for (int row = 0; row < src_rows; row++) {
@@ -32,14 +32,25 @@ cv::Mat toGrayscale(cv::Mat& src) {
 }
 
 cv::Mat threshold(cv::Mat& src, int threshold){
-    int rows = src.rows;
-    int cols = src.cols;
+    int src_channels = src.channels();
 
-    for (int r = 0; r < rows; r++) {
-        for (int c = 0; c < cols; c++) {
-            //std::cout << src.at<cv::Vec3b>(r, c);
-            cv::Vec3b pixel = src.at<cv::Vec3b>(r, c);
+    if (src_channels == 1) {
+        int src_rows = src.rows;
+        int src_cols = src.cols;
+        for (int row = 0; row < src_rows; row++) {
+            uchar* src_pixel = src.ptr<uchar>(row);
+            for (int col = 0; col < src_cols; col++) {
+                if (src_pixel[col] < threshold) {
+                    src_pixel[col] = 0;
+                }
+                else if (src_pixel[col] >= threshold) {
+                    src_pixel[col] = 255;
+                }
+            }
         }
+    }
+    else {
+        throw "Invalid number of channels in src image in function threshold";
     }
     return src;
 }
