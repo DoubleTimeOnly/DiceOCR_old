@@ -1,5 +1,6 @@
 #include "opencv2/core/core.hpp"
 #include <iostream>
+#include "ImageProcessing.h"
 
 cv::Mat toGrayscale(cv::Mat& src) {
     int src_channels = src.channels();
