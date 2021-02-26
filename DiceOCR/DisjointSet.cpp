@@ -55,11 +55,16 @@ void DisjointSet::mergeSets(std::pair<int, int> p1, std::pair<int, int> p2)
     else
     {
         parent[p2root] = p1root;
-        rank[p2root] += 1;
+        rank[p1root]++;
     }
 }
 
 const size_t DisjointSet::getSetSize()
 {
     return parent.size();
+}
+
+const int DisjointSet::findRank(const std::pair<int, int>& p)
+{
+    return rank[findRoot(p)];
 }

@@ -22,6 +22,7 @@ public:
     void mergeSets(std::pair<int, int> p1, std::pair<int, int> p2);
 
     const size_t getSetSize();
+    const int findRank(const std::pair<int, int>& p);
 };
 
 
