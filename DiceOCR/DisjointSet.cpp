@@ -54,8 +54,8 @@ void DisjointSet::mergeSets(std::pair<int, int> p1, std::pair<int, int> p2)
     }
     else
     {
-        parent[p1root] = p2root;
-        rank[p1root] += 1;
+        parent[p2root] = p1root;
+        rank[p2root] += 1;
     }
 }
 
