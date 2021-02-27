@@ -2,6 +2,7 @@
 #include "../DiceOCR/DisjointSet.h"
 #include "../DiceOCR/DisjointSet.cpp"
 #include "opencv2/core/core.hpp"
+#include "opencv2/imgcodecs/imgcodecs.hpp"
 
 TEST(DisjointSetTests, CreatingDisjointSetFromGrayscaleImageShouldHaveNoErrors) {
     DisjointSet disjointset;
@@ -63,4 +64,14 @@ TEST(DisjointSetTests, MergingTwoEqualRankSetsShouldIncreaseTheRankOfBothSets)
     disjointset.mergeSets(p0, p1);
     EXPECT_EQ(disjointset.findRank(p0), 1);
     EXPECT_EQ(disjointset.findRank(p1), 1); // root of p1 is p0, so its rank should be the same
+}
+
+//TODO: Add a test that creates a DisjointSet from an image read from disk
+TEST(DisjointSetTests, CreatingDisjointSetFromLoadedImageShouldRaiseNoErrors)
+{
+    cv::Mat grayscale_image = cv::imread("d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    DisjointSet disjointset;
+    disjointset.makeset(grayscale_image);
+    int num_pixels = grayscale_image.rows * grayscale_image.cols;
+    EXPECT_EQ(disjointset.getSetSize(), num_pixels);
 }
