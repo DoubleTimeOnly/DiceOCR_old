@@ -1,8 +1,12 @@
 #include "pch.h"
 #include "../DiceOCR/DisjointSet.h"
 #include "../DiceOCR/DisjointSet.cpp"
+#include "../DiceOCR/GraphSegmentation.h"
+#include "../DiceOCR/GraphSegmentation.cpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgcodecs/imgcodecs.hpp"
+#include <filesystem>
+
 
 TEST(DisjointSetTests, CreatingDisjointSetFromGrayscaleImageShouldHaveNoErrors) {
     DisjointSet disjointset;
@@ -66,12 +70,27 @@ TEST(DisjointSetTests, MergingTwoEqualRankSetsShouldIncreaseTheRankOfBothSets)
     EXPECT_EQ(disjointset.findRank(p1), 1); // root of p1 is p0, so its rank should be the same
 }
 
-//TODO: Add a test that creates a DisjointSet from an image read from disk
 TEST(DisjointSetTests, CreatingDisjointSetFromLoadedImageShouldRaiseNoErrors)
 {
-    cv::Mat grayscale_image = cv::imread("d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+    EXPECT_EQ(grayscale_image.rows, 479);
+    EXPECT_EQ(grayscale_image.cols, 639);
     DisjointSet disjointset;
     disjointset.makeset(grayscale_image);
     int num_pixels = grayscale_image.rows * grayscale_image.cols;
     EXPECT_EQ(disjointset.getSetSize(), num_pixels);
+}
+
+TEST(DisjointSetTests, CreatingGraphShouldRaiseNoErrors)
+{
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+    GraphSegmentation segmentationgraph;
+    segmentationgraph.calculateEdges(grayscale_image);
+
+    int rows = grayscale_image.rows;
+    int cols = grayscale_image.cols;
+    int expected_num_edges = 4 * cols*rows - 3 * (rows + cols) + 2;
+    EXPECT_EQ(expected_num_edges, segmentationgraph.getNumEdges());
 }
