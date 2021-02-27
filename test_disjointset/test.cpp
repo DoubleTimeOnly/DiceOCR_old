@@ -7,7 +7,7 @@
 #include "opencv2/imgcodecs/imgcodecs.hpp"
 #include <filesystem>
 
-
+//TODO: rename to CreatingDisjointSetFromSingleChannelMatrixShouldHaveAllNodesBeTheirOwnParent
 TEST(DisjointSetTests, CreatingDisjointSetFromGrayscaleImageShouldHaveNoErrors) {
     DisjointSet disjointset;
     cv::Mat grayscale_image = cv::Mat::ones(2, 2, CV_8U);
@@ -70,6 +70,7 @@ TEST(DisjointSetTests, MergingTwoEqualRankSetsShouldIncreaseTheRankOfBothSets)
     EXPECT_EQ(disjointset.findRank(p1), 1); // root of p1 is p0, so its rank should be the same
 }
 
+// TODO: Rename to CreatingDisjointSetFromLoadedImageShouldHaveExpectedNumberOfPixels
 TEST(DisjointSetTests, CreatingDisjointSetFromLoadedImageShouldRaiseNoErrors)
 {
     cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
@@ -82,6 +83,7 @@ TEST(DisjointSetTests, CreatingDisjointSetFromLoadedImageShouldRaiseNoErrors)
     EXPECT_EQ(disjointset.getSetSize(), num_pixels);
 }
 
+//TODO: Rename to CreatingGraphShouldHaveExpectedNumberOfEdges
 TEST(DisjointSetTests, CreatingGraphShouldRaiseNoErrors)
 {
     cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
@@ -93,4 +95,57 @@ TEST(DisjointSetTests, CreatingGraphShouldRaiseNoErrors)
     int cols = grayscale_image.cols;
     int expected_num_edges = 4 * cols*rows - 3 * (rows + cols) + 2;
     EXPECT_EQ(expected_num_edges, segmentationgraph.getNumEdges());
+}
+
+
+TEST(DisjointSetTests, ComparingEdgesShouldCompareByWeight)
+{
+    edge edge1, edge2;
+    std::pair<int, int> p1(0, 0), p2(1, 1), p3(2, 2);
+
+    edge1.a = p1;
+    edge1.b = p2;
+    edge1.weight = 2.0;
+
+    edge2.a = p1;
+    edge2.b = p3;
+    edge2.weight = 1.0;
+
+    EXPECT_FALSE(edge1 < edge2);
+
+    edge1.weight = 1.0;
+
+    EXPECT_FALSE(edge1 < edge2);
+
+    edge1.weight = 0.5;
+    EXPECT_TRUE(edge1 < edge2);
+}
+
+TEST(DisjointSetTests, SortingEdgeArrayShouldSortArrayByWeight)
+{
+    edge edge1, edge2, edge3, edge4;
+    std::pair<int, int> p1(0, 0), p2(1, 1); 
+
+    edge1.a = p1; edge1.b = p2; edge1.weight = 4.0; 
+    edge2.a = p1; edge2.b = p2; edge2.weight = 3.0; 
+    edge3.a = p1; edge3.b = p2; edge3.weight = 2.0; 
+    edge4.a = p1; edge4.b = p2; edge4.weight = 1.0; 
+
+    edge edges[4] = { edge1, edge2, edge3, edge4 };
+    std::sort(edges, edges + 4);
+
+    int previous_weight = 0;
+    for (edge e : edges)
+    {
+        EXPECT_EQ(e.weight - previous_weight, 1);
+        previous_weight = e.weight;
+    }
+}
+
+TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
+{
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+    GraphSegmentation segmentationgraph;
+
 }

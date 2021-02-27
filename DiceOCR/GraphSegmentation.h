@@ -5,6 +5,9 @@ struct edge
     std::pair<int, int> a, b;
     float weight;
 };
+
+bool operator<(const edge& a, const edge& b) { return a.weight < b.weight; }
+
 class GraphSegmentation
 {
 private:
