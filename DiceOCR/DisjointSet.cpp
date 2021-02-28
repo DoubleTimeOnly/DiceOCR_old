@@ -14,65 +14,51 @@ void DisjointSet::makeset(cv::Mat const& image)
     rows = image.rows;
     cols = image.cols;
 
-    for (int row = 0; row < rows; row++)
+    components = new component[rows*cols];
+
+    for (int idx = 0; idx < rows*cols; idx++)
     {
-        for (int col = 0; col < cols; col++) 
-        {
-            std::pair<int, int> p(col, row);
-            parent[p] = p;
-            rank[p] = 0;
-            setsize[p] = 1;
-        }
+        components[idx].parent = idx;
+        components[idx].rank = 0;
+        components[idx].size = 1;
     }
     num_components = rows * cols;
 }
 
-std::pair<int, int> DisjointSet::findRoot(std::pair<int, int> p)
+int DisjointSet::findRoot(int p)
 {
     // path compression
     // set parent of each node to the root of its respective set
-    if (parent[p] != p)
+    if (components[p].parent != p)
     {
-        parent[p] = findRoot(parent[p]);
+        components[p].parent = findRoot(components[p].parent);
     }
-    return parent[p];
+    return components[p].parent;
 }
 
-void DisjointSet::mergeSets(std::pair<int, int> p1, std::pair<int, int> p2)
+void DisjointSet::mergeSets(int p1, int p2)
 {
-    std::pair<int, int> p1root = findRoot(p1);
-    std::pair<int, int> p2root = findRoot(p2);
+    int p1root = findRoot(p1);
+    int p2root = findRoot(p2);
 
     // merge the two sets based on their rank / depth
     // larger ranked set consunmes the lower ranked one
     // if they are the same, the depth has effectively increased
-    if (rank[p1root] > rank[p2root])
+    if (components[p1root].rank < components[p2root].rank)
     {
-        parent[p2root] = p1root;
-        setsize[p1root] += setsize[p2root];
+        components[p1root].parent = p2root;
+        components[p2root].size += components[p1root].size;
     }
-    else if (rank[p1root] < rank[p2root])
+    else 
     {
-        parent[p1root] = p2root;
-        setsize[p2root] += setsize[p1root];
-    }
-    else
-    {
-        parent[p2root] = p1root;
-        rank[p1root]++;
-        setsize[p2root] += setsize[p1root];
+        components[p2root].parent = p1root;
+        components[p1root].size += components[p2root].size;
+        if (components[p1root].rank == components[p2root].rank)
+        {
+            components[p1root].rank++;
+        }
     }
     num_components--;
-}
-
-const size_t DisjointSet::getSetSize()
-{
-    return parent.size();
-}
-
-const int DisjointSet::findRank(const std::pair<int, int>& p)
-{
-    return rank[findRoot(p)];
 }
 
 cv::Mat DisjointSet::drawSegments()
@@ -86,10 +72,10 @@ cv::Mat DisjointSet::drawSegments()
     {
         for (int col = 0; col < cols; col++)
         {
-            std::pair<int, int> p(col, row);
-            std::pair<int, int> component_root = findRoot(p);
-            uchar color = color_palette.at<uchar>(component_root.second, component_root.first);
-            canvas.at<uchar>(row, col) = color;
+            int p = row * rows + col;
+            int component_root = findRoot(p);
+            //uchar color = color_palette.at<uchar>(component_root.second, component_root.first);
+            //canvas.at<uchar>(row, col) = color;
         }
     }
     return canvas;

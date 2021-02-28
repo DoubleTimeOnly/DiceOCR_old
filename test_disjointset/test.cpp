@@ -14,7 +14,7 @@ TEST(DisjointSetTests, CreatingDisjointSetFromGrayscaleImageShouldHaveNoErrors) 
     cv::Mat grayscale_image = cv::Mat::ones(2, 2, CV_8U);
     disjointset.makeset(grayscale_image);
 
-    EXPECT_EQ(disjointset.getSetSize(), 4);
+    EXPECT_EQ(disjointset.getNumComponents(), 4);
 
     // check parents set properly
     for (int row = 0; row < grayscale_image.rows; row++)
@@ -25,8 +25,8 @@ TEST(DisjointSetTests, CreatingDisjointSetFromGrayscaleImageShouldHaveNoErrors) 
             {
                 continue;
             }
-            std::pair<int, int> p(row, col);
-            std::pair<int, int> parent = disjointset.findRoot(p);
+            int p = flattenedIdx(row, col, grayscale_image.cols);
+            int parent = disjointset.findRoot(p);
             EXPECT_EQ(parent, p);
         }
     }
@@ -38,19 +38,16 @@ TEST(DisjointSetTests, MergingTwoDisjointSetsShouldHaveNoErrors)
     cv::Mat grayscale_image = cv::Mat::ones(2, 2, CV_8U);
     disjointset.makeset(grayscale_image);
     
-    std::pair<int, int> origin(0, 0);
+    int origin = 0;
     // check set merging and path compression
     for (int row = 0; row < grayscale_image.rows; row++)
     {
         for (int col = 0; col < grayscale_image.cols; col++)
         {
-            if (row == 0 && col == 0)
-            {
-                continue;
-            }
-            std::pair<int, int> p(row, col);
+            if (row == 0 && col == 0) { continue; }
+            int p = flattenedIdx(row, col, grayscale_image.cols);
             disjointset.mergeSets(origin, p);
-            std::pair<int, int> parent = disjointset.findRoot(p);
+            int parent = disjointset.findRoot(p);
             EXPECT_EQ(origin, parent);
         }
     }
@@ -62,13 +59,11 @@ TEST(DisjointSetTests, MergingTwoEqualRankSetsShouldIncreaseTheRankOfBothSets)
     cv::Mat grayscale_image = cv::Mat::ones(2, 1, CV_8U);
     disjointset.makeset(grayscale_image);
 
-    std::pair<int, int> p0(0, 0);
-    std::pair<int, int> p1(1, 0);
-    EXPECT_EQ(disjointset.findRank(p0), 0);
-    EXPECT_EQ(disjointset.findRank(p1), 0);
-    disjointset.mergeSets(p0, p1);
-    EXPECT_EQ(disjointset.findRank(p0), 1);
-    EXPECT_EQ(disjointset.findRank(p1), 1); // root of p1 is p0, so its rank should be the same
+    EXPECT_EQ(disjointset.findRank(0), 0);
+    EXPECT_EQ(disjointset.findRank(1), 0);
+    disjointset.mergeSets(0, 1);
+    EXPECT_EQ(disjointset.findRank(0), 1);
+    EXPECT_EQ(disjointset.findRank(1), 1); // root of p1 is p0, so its rank should be the same
 }
 
 // TODO: Rename to CreatingDisjointSetFromLoadedImageShouldHaveExpectedNumberOfPixels
@@ -81,7 +76,7 @@ TEST(DisjointSetTests, CreatingDisjointSetFromLoadedImageShouldRaiseNoErrors)
     DisjointSet disjointset;
     disjointset.makeset(grayscale_image);
     int num_pixels = grayscale_image.rows * grayscale_image.cols;
-    EXPECT_EQ(disjointset.getSetSize(), num_pixels);
+    EXPECT_EQ(disjointset.getNumComponents(), num_pixels);
 }
 
 //TODO: Rename to CreatingGraphShouldHaveExpectedNumberOfEdges
@@ -102,14 +97,13 @@ TEST(DisjointSetTests, CreatingGraphShouldRaiseNoErrors)
 TEST(DisjointSetTests, ComparingEdgesShouldCompareByWeight)
 {
     edge edge1, edge2;
-    std::pair<int, int> p1(0, 0), p2(1, 1), p3(2, 2);
 
-    edge1.a = p1;
-    edge1.b = p2;
+    edge1.a = 1;
+    edge1.b = 2;
     edge1.weight = 2.0;
 
-    edge2.a = p1;
-    edge2.b = p3;
+    edge2.a = 1;
+    edge2.b = 3;
     edge2.weight = 1.0;
 
     EXPECT_FALSE(edge1 < edge2);
@@ -125,12 +119,11 @@ TEST(DisjointSetTests, ComparingEdgesShouldCompareByWeight)
 TEST(DisjointSetTests, SortingEdgeArrayShouldSortArrayByWeight)
 {
     edge edge1, edge2, edge3, edge4;
-    std::pair<int, int> p1(0, 0), p2(1, 1); 
 
-    edge1.a = p1; edge1.b = p2; edge1.weight = 4.0; 
-    edge2.a = p1; edge2.b = p2; edge2.weight = 3.0; 
-    edge3.a = p1; edge3.b = p2; edge3.weight = 2.0; 
-    edge4.a = p1; edge4.b = p2; edge4.weight = 1.0; 
+    edge1.a = 1; edge1.b = 2; edge1.weight = 4.0; 
+    edge2.a = 1; edge2.b = 2; edge2.weight = 3.0; 
+    edge3.a = 1; edge3.b = 2; edge3.weight = 2.0; 
+    edge4.a = 1; edge4.b = 2; edge4.weight = 1.0; 
 
     edge edges[4] = { edge1, edge2, edge3, edge4 };
     std::sort(edges, edges + 4);

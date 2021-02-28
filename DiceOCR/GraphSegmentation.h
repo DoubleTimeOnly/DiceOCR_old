@@ -3,7 +3,7 @@
 #include "DisjointSet.h"
 struct edge
 {
-    std::pair<int, int> a, b;
+    int a, b;
     float weight;
 };
 
@@ -21,7 +21,7 @@ private:
 
 public:
     void segmentGraph(const cv::Mat& image, float c);
-    edge* calculateEdges(const cv::Mat& image);
+    void calculateEdges(const cv::Mat& image);
     const int getNumEdges();
     cv::Mat drawSegments();
 };
