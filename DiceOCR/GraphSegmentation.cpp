@@ -18,8 +18,8 @@ int flattenedIdx(int row, int col, int max_cols)
 
 void GraphSegmentation::calculateEdges(const cv::Mat& image)
 {
-    const int rows = image.rows;
-    const int cols = image.cols;
+    rows = image.rows;
+    cols = image.cols;
     edges = new edge[rows*cols*4];    // create array of edges
 
     num_edges = 0;
@@ -110,6 +110,21 @@ const int GraphSegmentation::getNumEdges()
 
 cv::Mat GraphSegmentation::drawSegments()
 {
-    return components.drawSegments();
+    cv::Mat canvas = cv::Mat::zeros(rows, cols, CV_8UC1);
+    cv::Mat color_palette(rows*cols, 1, CV_8UC1);
+    cv::randu(color_palette, 0, 255);
+
+    // find number of distinct components
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            int p = flattenedIdx(row, col, cols);
+            int component_root = components.findRoot(p);
+            uchar color = color_palette.at<uchar>(component_root, 0);
+            canvas.at<uchar>(row, col) = color;
+        }
+    }
+    return canvas;
 }
 

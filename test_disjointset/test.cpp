@@ -143,6 +143,7 @@ TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
     GraphSegmentation segmentationgraph;
     segmentationgraph.segmentGraph(grayscale_image);
     cv::Mat canvas = segmentationgraph.drawSegments();
+    cv::imshow("Original", grayscale_image);
     cv::imshow("Components", canvas);
     cv::waitKey();
 }

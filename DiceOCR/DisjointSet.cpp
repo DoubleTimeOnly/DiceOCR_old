@@ -61,22 +61,3 @@ void DisjointSet::mergeSets(int p1, int p2)
     num_components--;
 }
 
-cv::Mat DisjointSet::drawSegments()
-{
-    cv::Mat canvas = cv::Mat::zeros(rows, cols, CV_8UC1);
-    cv::Mat color_palette(rows, cols, CV_8UC1);
-    cv::randu(color_palette, 0, 255);
-
-    // find number of distinct components
-    for (int row = 0; row < rows; row++)
-    {
-        for (int col = 0; col < cols; col++)
-        {
-            int p = row * rows + col;
-            int component_root = findRoot(p);
-            //uchar color = color_palette.at<uchar>(component_root.second, component_root.first);
-            //canvas.at<uchar>(row, col) = color;
-        }
-    }
-    return canvas;
-}
