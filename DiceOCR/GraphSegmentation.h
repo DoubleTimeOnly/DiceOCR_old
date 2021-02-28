@@ -1,5 +1,6 @@
 #pragma once
 #include "opencv2/core/core.hpp"
+#include "DisjointSet.h"
 struct edge
 {
     std::pair<int, int> a, b;
@@ -15,9 +16,12 @@ private:
     cv::Mat component_weights;
     void getEdges(const cv::Mat& image);
     int num_edges = 0;
+    DisjointSet components;
+
 
 public:
     void segmentGraph(const cv::Mat& image);
     edge* calculateEdges(const cv::Mat& image);
     const int getNumEdges();
+    cv::Mat drawSegments();
 };

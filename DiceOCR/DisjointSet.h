@@ -14,6 +14,10 @@ struct hash_pair {
 
 class DisjointSet
 {
+private:
+    int rows;
+    int cols;
+    int num_components;
 public:
     std::unordered_map<std::pair<int, int>, std::pair<int, int>,  hash_pair> parent;    // stores each node in set and their parent
     std::unordered_map<std::pair<int, int>, int, hash_pair> rank;    // store the rank of each node
@@ -23,6 +27,9 @@ public:
 
     const size_t getSetSize();
     const int findRank(const std::pair<int, int>& p);
+    cv::Mat drawSegments();
+    const int getNumComponents() { return this->num_components; }
+    
 };
 
 

@@ -5,6 +5,7 @@
 #include "../DiceOCR/GraphSegmentation.cpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgcodecs/imgcodecs.hpp"
+#include "opencv2/highgui/highgui.hpp"
 #include <filesystem>
 
 //TODO: rename to CreatingDisjointSetFromSingleChannelMatrixShouldHaveAllNodesBeTheirOwnParent
@@ -148,5 +149,7 @@ TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
     EXPECT_FALSE(grayscale_image.empty());
     GraphSegmentation segmentationgraph;
     segmentationgraph.segmentGraph(grayscale_image);
-
+    cv::Mat canvas = segmentationgraph.drawSegments();
+    cv::imshow("Components", canvas);
+    cv::waitKey();
 }
