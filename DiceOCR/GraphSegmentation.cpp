@@ -82,37 +82,40 @@ edge* GraphSegmentation::calculateEdges(const cv::Mat& image)
 
 void GraphSegmentation::segmentGraph(const cv::Mat& image)
 {
+    float c = 150.0;
     components.makeset(image);
     calculateEdges(image);
     std::sort(edges, edges + num_edges);
 
-    //int previous_num_components = 0;
-    //while (components.getNumComponents() != previous_num_components)
-    //{
-        //previous_num_components = components.getNumComponents();
-        for (int idx = 0; idx < num_edges; idx++)
+    // calculate thresholds
+    cv::Mat thresholds(image.rows, image.cols, CV_32FC1);
+    for (int row = 0; row < image.rows; row++)
+    {
+        for (int col = 0; col < image.cols; col++)
         {
-            std::pair<int, int> component1_root = components.findRoot(edges[idx].a);
-            std::pair<int, int> component2_root = components.findRoot(edges[idx].b);
+            thresholds.at<float>(row, col) = c / 1;
+        }
+    }
 
-            if (component1_root != component2_root)
+    for (int idx = 0; idx < num_edges; idx++)
+    {
+        std::pair<int, int> component1_root = components.findRoot(edges[idx].a);
+        std::pair<int, int> component2_root = components.findRoot(edges[idx].b);
+
+        if (component1_root != component2_root)
+        {
+            float edge_weight = edges[idx].weight;
+            float threshold1 = thresholds.at<float>(component1_root.second, component1_root.first);
+            float threshold2 = thresholds.at<float>(component2_root.second, component2_root.first);
+
+            if ((edge_weight < threshold1) && (edge_weight < threshold2))
             {
-                float edge_weight = edges[idx].weight;
-                int type = component_weights.type();
-                float component1_weight = component_weights.at<float>(component1_root.second, component1_root.first);
-                float component2_weight = component_weights.at<float>(component2_root.second, component2_root.first);
-
-                if ((edge_weight < component1_weight) && (edge_weight < component2_weight))
-                {
-                    components.mergeSets(component1_root, component2_root);
-                    float max_weight = std::max(component1_weight, component2_weight);
-                    component_weights.at<float>(component1_root.second, component1_root.first) = max_weight;
-                    component_weights.at<float>(component2_root.second, component2_root.first) = max_weight;
-                }
+                components.mergeSets(component1_root, component2_root);
+                component1_root = components.findRoot(component1_root);
+                thresholds.at<float>(component1_root.second, component1_root.first) = edge_weight + (c / components.getSetSize(component1_root));
             }
         }
-    //}
-
+    }
 }
 const int GraphSegmentation::getNumEdges()
 {

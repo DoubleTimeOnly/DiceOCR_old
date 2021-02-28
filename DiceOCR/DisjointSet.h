@@ -18,9 +18,11 @@ private:
     int rows;
     int cols;
     int num_components;
+
 public:
     std::unordered_map<std::pair<int, int>, std::pair<int, int>,  hash_pair> parent;    // stores each node in set and their parent
     std::unordered_map<std::pair<int, int>, int, hash_pair> rank;    // store the rank of each node
+    std::unordered_map<std::pair<int, int>, int, hash_pair> setsize;    // store the size of each node
     void makeset(cv::Mat const& image);
     std::pair<int, int> findRoot(std::pair<int, int> p);
     void mergeSets(std::pair<int, int> p1, std::pair<int, int> p2);
@@ -29,6 +31,7 @@ public:
     const int findRank(const std::pair<int, int>& p);
     cv::Mat drawSegments();
     const int getNumComponents() { return this->num_components; }
+    const int getSetSize(const std::pair<int, int>& p) { return this->setsize[p]; }
     
 };
 

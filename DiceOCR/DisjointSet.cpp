@@ -21,6 +21,7 @@ void DisjointSet::makeset(cv::Mat const& image)
             std::pair<int, int> p(col, row);
             parent[p] = p;
             rank[p] = 0;
+            setsize[p] = 1;
         }
     }
     num_components = rows * cols;
@@ -48,15 +49,18 @@ void DisjointSet::mergeSets(std::pair<int, int> p1, std::pair<int, int> p2)
     if (rank[p1root] > rank[p2root])
     {
         parent[p2root] = p1root;
+        setsize[p1root] += setsize[p2root];
     }
     else if (rank[p1root] < rank[p2root])
     {
         parent[p1root] = p2root;
+        setsize[p2root] += setsize[p1root];
     }
     else
     {
         parent[p2root] = p1root;
         rank[p1root]++;
+        setsize[p2root] += setsize[p1root];
     }
     num_components--;
 }
@@ -84,19 +88,6 @@ cv::Mat DisjointSet::drawSegments()
         {
             std::pair<int, int> p(col, row);
             std::pair<int, int> component_root = findRoot(p);
-            //std::unordered_map<std::pair<int, int>, int>::const_iterator color_location = color_palette.find(component_root);
-
-            //int component_color;
-            //if (color_location == color_palette.end())
-            //{
-            //    color_palette[component_root] = colors.back();
-            //    component_color = colors.back();
-            //    colors.pop_back();
-            //}
-            //else
-            //{
-            //    component_color = color_palette[component_root];
-            //}
             uchar color = color_palette.at<uchar>(component_root.second, component_root.first);
             canvas.at<uchar>(row, col) = color;
         }
