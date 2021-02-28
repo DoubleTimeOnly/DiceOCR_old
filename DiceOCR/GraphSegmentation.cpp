@@ -18,7 +18,7 @@ edge* GraphSegmentation::calculateEdges(const cv::Mat& image)
     edges = new edge[rows*cols*4];    // create array of edges
 
     num_edges = 0;
-    cv::Mat component_weights = cv::Mat::zeros(rows, cols, CV_32F);
+    component_weights = cv::Mat::zeros(rows, cols, CV_32FC1);
     for (int row = 0; row < rows; row++)
     {
         for (int col = 0; col < cols; col++)
@@ -82,8 +82,32 @@ edge* GraphSegmentation::calculateEdges(const cv::Mat& image)
 
 void GraphSegmentation::segmentGraph(const cv::Mat& image)
 {
+    DisjointSet components;
+    components.makeset(image);
     calculateEdges(image);
     std::sort(edges, edges + num_edges);
+
+    for (int idx = 0; idx < num_edges; idx++)
+    {
+        std::pair<int, int> component1_root = components.findRoot(edges[idx].a);
+        std::pair<int, int> component2_root = components.findRoot(edges[idx].b);
+
+        if (component1_root != component2_root)
+        {
+            float edge_weight = edges[idx].weight;
+            int type = component_weights.type();
+            float component1_weight = component_weights.at<float>(component1_root.second, component1_root.first);
+            float component2_weight = component_weights.at<float>(component2_root.second, component2_root.first);
+
+            if ((edge_weight < component1_weight) && (edge_weight < component2_weight))
+            {
+                components.mergeSets(component1_root, component2_root);
+                component_weights.at<float>(component1_root.second, component1_root.first) = edge_weight;
+                component_weights.at<float>(component2_root.second, component2_root.first) = edge_weight;
+            }
+        }
+    }
+
 }
 const int GraphSegmentation::getNumEdges()
 {

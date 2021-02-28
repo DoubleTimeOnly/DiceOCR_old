@@ -147,5 +147,6 @@ TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
     cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
     EXPECT_FALSE(grayscale_image.empty());
     GraphSegmentation segmentationgraph;
+    segmentationgraph.segmentGraph(grayscale_image);
 
 }
