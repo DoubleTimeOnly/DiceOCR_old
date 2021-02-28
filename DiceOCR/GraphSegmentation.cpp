@@ -80,9 +80,8 @@ edge* GraphSegmentation::calculateEdges(const cv::Mat& image)
 
 }
 
-void GraphSegmentation::segmentGraph(const cv::Mat& image)
+void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500)
 {
-    float c = 150.0;
     components.makeset(image);
     calculateEdges(image);
     std::sort(edges, edges + num_edges);

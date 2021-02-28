@@ -20,7 +20,7 @@ private:
 
 
 public:
-    void segmentGraph(const cv::Mat& image);
+    void segmentGraph(const cv::Mat& image, float c);
     edge* calculateEdges(const cv::Mat& image);
     const int getNumEdges();
     cv::Mat drawSegments();
