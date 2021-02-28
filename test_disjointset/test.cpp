@@ -6,6 +6,7 @@
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgcodecs/imgcodecs.hpp"
 #include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include <filesystem>
 
 //TODO: rename to CreatingDisjointSetFromSingleChannelMatrixShouldHaveAllNodesBeTheirOwnParent
@@ -141,9 +142,6 @@ TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
     cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
     EXPECT_FALSE(grayscale_image.empty());
     GraphSegmentation segmentationgraph;
-    segmentationgraph.segmentGraph(grayscale_image);
+    segmentationgraph.segmentGraph(grayscale_image, 300, 100);
     cv::Mat canvas = segmentationgraph.drawSegments();
-    cv::imshow("Original", grayscale_image);
-    cv::imshow("Components", canvas);
-    cv::waitKey();
 }

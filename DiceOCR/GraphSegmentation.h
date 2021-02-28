@@ -14,14 +14,12 @@ class GraphSegmentation
 private:
     edge* edges;
     int rows, cols;
-    cv::Mat component_weights;
-    void getEdges(const cv::Mat& image);
     int num_edges = 0;
     DisjointSet components;
 
 
 public:
-    void segmentGraph(const cv::Mat& image, float c);
+    void segmentGraph(const cv::Mat& image, float c, int minsize);
     void calculateEdges(const cv::Mat& image);
     const int getNumEdges();
     cv::Mat drawSegments();

@@ -8,6 +8,8 @@ float calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, in
     int intensity1 = image.at<uchar>(row1, col1);
     int intensity2 = image.at<uchar>(row2, col2);
     float weight = std::abs(intensity1 - intensity2);
+    weight = std::max(std::min(weight, float(255)), float(0));
+    //if ((weight < 0) || (weight > 255)) { raise 20; }
     return weight;
 }
 
@@ -73,7 +75,7 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
 
 float calculateTau(float c, int size) { return c / size; }
 
-void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500)
+void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int minsize=100)
 {
     components.makeset(image);
     calculateEdges(image);
@@ -99,6 +101,23 @@ void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500)
                 components.mergeSets(component1_root, component2_root);
                 component1_root = components.findRoot(component1_root);
                 threshold[component1_root] = edge_weight + calculateTau(c, components.getSetSize(component1_root));
+            }
+        }
+    }
+
+    // component post processing
+    for (int i = 0; i < num_edges; i++)
+    {
+        int component1_root = components.findRoot(edges[i].a);
+        int component2_root = components.findRoot(edges[i].b);
+
+        if (component1_root != component2_root)
+        {
+            int component1_size = components.getSetSize(component1_root);
+            int component2_size = components.getSetSize(component2_root);
+            if ((component1_size < minsize) || (component2_size < minsize)) 
+            {
+                components.mergeSets(component1_root, component2_root);
             }
         }
     }
