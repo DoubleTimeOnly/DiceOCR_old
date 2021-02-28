@@ -80,8 +80,8 @@ void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500)
     std::sort(edges, edges + num_edges);
 
     // calculate thresholds
-    float* threshold = new float[image.rows*image.cols];
-    for (int row = 0; row < image.rows; row++) { threshold[row] = calculateTau(c, 1); }
+    float* threshold = new float[rows*cols];
+    for (int idx = 0; idx < rows*cols; idx++) { threshold[idx] = calculateTau(c, 1); }
 
     for (int idx = 0; idx < num_edges; idx++)
     {
