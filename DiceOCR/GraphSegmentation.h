@@ -13,6 +13,7 @@ class GraphSegmentation
 {
 private:
     edge* edges;
+    int rows, cols;
     cv::Mat component_weights;
     void getEdges(const cv::Mat& image);
     int num_edges = 0;
