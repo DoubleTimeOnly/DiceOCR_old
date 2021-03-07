@@ -14,6 +14,7 @@ void DisjointSet::makeset(cv::Mat const& image)
     rows = image.rows;
     cols = image.cols;
 
+    delete components;
     components = new component[rows*cols];
 
     for (int idx = 0; idx < rows*cols; idx++)

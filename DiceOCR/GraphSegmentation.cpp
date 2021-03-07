@@ -20,6 +20,7 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
 {
     rows = image.rows;
     cols = image.cols;
+    delete edges;
     edges = new edge[rows*cols*4];    // create array of edges
 
     num_edges = 0;
@@ -104,6 +105,7 @@ void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int mins
             }
         }
     }
+    delete threshold;
 
     // component post processing
     for (int i = 0; i < num_edges; i++)
