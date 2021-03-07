@@ -20,7 +20,7 @@ int main() {
         g_cap >> frame;
         //threshold(frame, 125);
         grayscale = toGrayscale(frame);
-        segmenter.segmentGraph(grayscale, 2000, 100, true);
+        segmenter.segmentGraph(grayscale, 2000, 100);
         cv::Mat segmented_image = segmenter.drawSegments();
         cv::imshow("Segmented Image", segmented_image);
         cv::imshow("Webcam", grayscale);
