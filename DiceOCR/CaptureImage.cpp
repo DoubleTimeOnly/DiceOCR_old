@@ -3,6 +3,7 @@
 #include <iostream>
 #include "CaptureImage.h"
 #include "ImageProcessing.h"
+#include "GraphSegmentation.h"
 
 cv::VideoCapture g_cap;
 
@@ -13,12 +14,15 @@ int main() {
     cv::Mat grayscale;
     cv::namedWindow("Webcam", cv::WINDOW_AUTOSIZE);
     g_cap.open(0);
+    GraphSegmentation segmenter;
 
     for (;;) {
         g_cap >> frame;
         //threshold(frame, 125);
         grayscale = toGrayscale(frame);
-        //cv::Mat thresholded_image = threshold(grayscale, 80);
+        segmenter.segmentGraph(grayscale, 2000, 100, true);
+        cv::Mat segmented_image = segmenter.drawSegments();
+        cv::imshow("Segmented Image", segmented_image);
         cv::imshow("Webcam", grayscale);
         cv::waitKey(1);
     }

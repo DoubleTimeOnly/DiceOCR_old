@@ -75,7 +75,9 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
 
 float calculateTau(float c, int size) { return c / size; }
 
-void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int minsize=100)
+bool operator<(const edge& a, const edge& b) { return a.weight < b.weight; }
+
+void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int minsize=100, bool usePostProcessing=true)
 {
     components.makeset(image);
     calculateEdges(image);

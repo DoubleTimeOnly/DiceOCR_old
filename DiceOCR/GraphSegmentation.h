@@ -7,14 +7,12 @@ struct edge
     float weight;
 };
 
-bool operator<(const edge& a, const edge& b) { return a.weight < b.weight; }
-
 class GraphSegmentation
 {
 private:
     edge* edges;
     int rows, cols;
-    int num_edges = 0;
+    int num_edges;
     DisjointSet components;
 
 
