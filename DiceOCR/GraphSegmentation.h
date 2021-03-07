@@ -4,7 +4,7 @@
 struct edge
 {
     int a, b;
-    float weight;
+    uchar weight;
 };
 
 class GraphSegmentation

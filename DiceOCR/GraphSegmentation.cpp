@@ -2,14 +2,12 @@
 #include "GraphSegmentation.h"
 #include "DisjointSet.h"
 
-float calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, int col2)
+uchar calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, int col2)
 {
     // Mat.at is (y,x)
-    int intensity1 = image.at<uchar>(row1, col1);
-    int intensity2 = image.at<uchar>(row2, col2);
-    float weight = std::abs(intensity1 - intensity2);
-    weight = std::max(std::min(weight, float(255)), float(0));
-    //if ((weight < 0) || (weight > 255)) { raise 20; }
+    uchar intensity1 = image.at<uchar>(row1, col1);
+    uchar intensity2 = image.at<uchar>(row2, col2);
+    uchar weight = std::abs(intensity1 - intensity2);
     return weight;
 }
 
@@ -26,7 +24,7 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
 
     num_edges = 0;
     int p1;
-    float weight;
+    uchar weight;
     for (int row = 0; row < rows; row++)
     {
         for (int col = 0; col < cols; col++)
