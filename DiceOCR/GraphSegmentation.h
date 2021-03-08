@@ -10,7 +10,7 @@ struct edge
 class GraphSegmentation
 {
 private:
-    edge* edges;
+    edge* edges = NULL;
     int rows, cols;
     int num_edges;
     DisjointSet components;

@@ -25,7 +25,7 @@ private:
     int rows;
     int cols;
     int num_components;
-    component* components;
+    component* components = NULL;
 
 public:
     std::unordered_map<cv::Point2i, cv::Point2i,  hash_pair> parent;    // stores each node in set and their parent
