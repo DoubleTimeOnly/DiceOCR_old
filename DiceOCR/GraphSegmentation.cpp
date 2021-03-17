@@ -111,7 +111,7 @@ bool operator<(const edge& a, const edge& b) { return a.weight < b.weight; }
  @param c: hyperparameter. Larger values mean larger final segmentations.
  @param minsize: the smallest area in pixels a segmentation can be
 */
-void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int minsize=100)
+void GraphSegmentation::segmentGraph(const cv::Mat& image, float c, int minsize)
 {
     components.makeset(image);
     calculateEdges(image);
@@ -168,16 +168,15 @@ const int GraphSegmentation::getNumEdges()
 /*
  Visualize the final segmentations
 
+ @param drawboxes: if true, draw the bounding boxes around each segmentation
  @return an image that shows each segmentation and their bounding boxes
 */
-cv::Mat GraphSegmentation::drawSegments()
+cv::Mat GraphSegmentation::drawSegments(bool drawboxes)
 {
     cv::Mat canvas = cv::Mat::zeros(rows, cols, CV_8UC1);
     cv::Mat color_palette(rows*cols, 1, CV_8UC1);
     cv::randu(color_palette, 0, 255);
-    std::unordered_set<int> visited_components = {};
 
-    // find number of distinct components
     int p, component_root;
     for (int row = 0; row < rows; row++)
     {
@@ -187,15 +186,40 @@ cv::Mat GraphSegmentation::drawSegments()
             component_root = components.findRoot(p);
             uchar color = color_palette.at<uchar>(component_root, 0);
             canvas.at<uchar>(row, col) = color;
-
-            // draw bboxes only once
-            if (visited_components.find(component_root) == visited_components.end()) { visited_components.insert(component_root); }
         }
     }
-    for (const auto& component : visited_components)
+
+    if (drawboxes)
     {
-        cv::rectangle(canvas, components.getBoundingBoxCoordinates(component), cv::Scalar(255));
+        std::vector<cv::Rect> regions;
+        getROIs(regions);
+        for (const cv::Rect& region : regions)
+        {
+            cv::rectangle(canvas, region, cv::Scalar(255));
+        }
     }
     return canvas;
 }
 
+/*
+ Get the axis-aligned bounding boxes of each segmented component
+
+ @param regions: vector to pass the found regions to
+*/
+void GraphSegmentation::getROIs(std::vector<cv::Rect>& regions) 
+{
+    std::unordered_set<int> visited_components = {};
+    int component_root;
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            component_root = components.findRoot(flattenedIdx(row, col, cols));
+            if (visited_components.find(component_root) == visited_components.end()) 
+            { 
+                regions.push_back(components.getBoundingBoxCoordinates(component_root));
+                visited_components.insert(component_root); 
+            }
+        }
+    }
+}
