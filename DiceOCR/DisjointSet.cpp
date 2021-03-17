@@ -81,13 +81,13 @@ void DisjointSet::mergeSets(int p1, int p2)
     num_components--;
 }
 
-BoundingBox DisjointSet::getBoundingBoxCoordinates(int root)
+cv::Rect DisjointSet::getBoundingBoxCoordinates(int root)
 {
-    BoundingBox boundingbox;
-    boundingbox.minX = components[root].minX;
-    boundingbox.minY = components[root].minY;
-    boundingbox.width = components[root].maxX - components[root].minX;
-    boundingbox.height = components[root].maxY - components[root].minY;
-    return boundingbox;
+    return cv::Rect(
+        components[root].minX,
+        components[root].minY,
+        components[root].maxX - components[root].minX,
+        components[root].maxY - components[root].minY
+    );
 }
 

@@ -156,8 +156,7 @@ cv::Mat GraphSegmentation::drawSegments()
     }
     for (const auto& component : visited_components)
     {
-        BoundingBox bbox = components.getBoundingBoxCoordinates(component);
-        cv::rectangle(canvas, cv::Rect(bbox.minX, bbox.minY, bbox.width, bbox.height), cv::Scalar(255));
+        cv::rectangle(canvas, components.getBoundingBoxCoordinates(component), cv::Scalar(255));
     }
     return canvas;
 }
