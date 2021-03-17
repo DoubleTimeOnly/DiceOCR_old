@@ -142,6 +142,21 @@ TEST(DisjointSetTests, SegmentingGraphShouldSegmentGraph)
     cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
     EXPECT_FALSE(grayscale_image.empty());
     GraphSegmentation segmentationgraph;
-    segmentationgraph.segmentGraph(grayscale_image, 300, 100);
+    segmentationgraph.segmentGraph(grayscale_image);
     cv::Mat canvas = segmentationgraph.drawSegments();
+    EXPECT_NE(cv::sum(grayscale_image), cv::sum(canvas));
+}
+
+TEST(DisjointSetTests, CanGetROIsOfSegmentations)
+{
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+    GraphSegmentation segmentationgraph;
+    segmentationgraph.segmentGraph(grayscale_image);
+    std::vector<cv::Rect> rois;
+    segmentationgraph.getROIs(rois, grayscale_image.cols, grayscale_image.rows);
+    EXPECT_EQ(rois.size(), 5);
+    rois.clear();
+    segmentationgraph.getROIs(rois, 200, 200);
+    EXPECT_EQ(rois.size(), 1);
 }

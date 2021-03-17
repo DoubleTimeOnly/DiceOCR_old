@@ -21,5 +21,5 @@ public:
     void calculateEdges(const cv::Mat& image);
     const int getNumEdges();
     cv::Mat drawSegments(bool drawboxes=true);
-    void getROIs(std::vector<cv::Rect>& regions);
+    void getROIs(std::vector<cv::Rect>& regions, int maxWidth=200, int maxHeight=200);
 };

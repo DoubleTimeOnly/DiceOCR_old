@@ -192,7 +192,7 @@ cv::Mat GraphSegmentation::drawSegments(bool drawboxes)
     if (drawboxes)
     {
         std::vector<cv::Rect> regions;
-        getROIs(regions);
+        getROIs(regions, cols, rows);
         for (const cv::Rect& region : regions)
         {
             cv::rectangle(canvas, region, cv::Scalar(255));
@@ -205,8 +205,9 @@ cv::Mat GraphSegmentation::drawSegments(bool drawboxes)
  Get the axis-aligned bounding boxes of each segmented component
 
  @param regions: vector to pass the found regions to
+ @param maxWidth, maxHeight: max width and height of component bounding boxes
 */
-void GraphSegmentation::getROIs(std::vector<cv::Rect>& regions) 
+void GraphSegmentation::getROIs(std::vector<cv::Rect>& regions, int maxWidth, int maxHeight) 
 {
     std::unordered_set<int> visited_components = {};
     int component_root;
@@ -217,7 +218,11 @@ void GraphSegmentation::getROIs(std::vector<cv::Rect>& regions)
             component_root = components.findRoot(flattenedIdx(row, col, cols));
             if (visited_components.find(component_root) == visited_components.end()) 
             { 
-                regions.push_back(components.getBoundingBoxCoordinates(component_root));
+                cv::Rect region = components.getBoundingBoxCoordinates(component_root);
+                if ((region.width < maxWidth) && (region.height < maxHeight))
+                {
+                    regions.push_back(region);
+                }
                 visited_components.insert(component_root); 
             }
         }
