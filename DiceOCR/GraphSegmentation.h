@@ -15,7 +15,6 @@ private:
     int num_edges;
     DisjointSet components;
 
-
 public:
     void segmentGraph(const cv::Mat& image, float c, int minsize);
     void calculateEdges(const cv::Mat& image);

@@ -6,16 +6,18 @@
 #include "DisjointSet.h"
 #include <algorithm>
 
-// how to implement unordered_map with pair as key
-// https://www.geeksforgeeks.org/how-to-create-an-unordered_map-of-pairs-in-c/
-
+/*
+ Initialize each pixel in an image as its own disjoint set
+ 
+ @param image: image to create disjoint sets from
+*/
 void DisjointSet::makeset(cv::Mat const& image)
 {
-    // initialize each pixel in image as its own parent
     rows = image.rows;
     cols = image.cols;
 
     delete components;
+    // The disjoint sets are stored in a flattened array of the same size as the image
     components = new component[rows*cols];
 
     int idx;
@@ -36,10 +38,15 @@ void DisjointSet::makeset(cv::Mat const& image)
     num_components = rows * cols;
 }
 
+/*
+ Given the element of a disjoint set, find the representative (root) element of said set
+
+ @param p: an element of a disjoint set
+ @return the representative (root) element of the disjoint set p is a part of
+*/
 int DisjointSet::findRoot(int p)
 {
-    // path compression
-    // set parent of each node to the root of its respective set
+    // compress sets to make finding root faster in the future
     if (components[p].parent != p)
     {
         components[p].parent = findRoot(components[p].parent);
@@ -47,6 +54,14 @@ int DisjointSet::findRoot(int p)
     return components[p].parent;
 }
 
+/*
+ Merge two disjoint sets
+
+ Merging a set means pointing the parent of the smaller set to the parent of the larger set
+ and updating the set's properties. Elements of both sets will now point to the same root.
+
+ @params p1, p2: elements of disjoint sets
+*/
 void DisjointSet::mergeSets(int p1, int p2)
 {
     int p1root = findRoot(p1);
@@ -81,7 +96,13 @@ void DisjointSet::mergeSets(int p1, int p2)
     num_components--;
 }
 
-cv::Rect DisjointSet::getBoundingBoxCoordinates(int root)
+/*
+ Get the bounding box of a disjoint set given its root
+
+ @param root: the representative (root) element of a disjoint set
+ @return a cv::Rect that represents the bounding box that encompasses the disjoint set
+*/
+const cv::Rect DisjointSet::getBoundingBoxCoordinates(int root)
 {
     return cv::Rect(
         components[root].minX,

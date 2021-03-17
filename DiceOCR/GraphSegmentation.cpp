@@ -5,6 +5,13 @@
 #include "DisjointSet.h"
 #include <unordered_set>
 
+/*
+ Determine the weight between two pixels in an image
+
+ @param image
+ @param row, col: coordinates of the pixels to calculate weight between
+ @return the weight between two pixels
+*/
 uchar calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, int col2)
 {
     // Mat.at is (y,x)
@@ -14,11 +21,23 @@ uchar calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, in
     return weight;
 }
 
+/*
+ Return the flattened index of a 2D position
+
+ @param row, col: 2D coordinate in a matrix
+ @param max_cols: the number of columns (width) of the matrix
+ @return the index of a 2D coordinate if the matrix was flattened
+*/
 int flattenedIdx(int row, int col, int max_cols)
 {
     return row * max_cols + col;
 }
 
+/*
+ Calculate the 8-connected nearest neighbor edges for each pixel in an image
+
+ @param image
+*/
 void GraphSegmentation::calculateEdges(const cv::Mat& image)
 {
     rows = image.rows;
@@ -75,17 +94,30 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
     }
 }
 
+/*
+ Calculate the threshold Tau used to help determine if two disjoint sets should be merged
+
+ @param c: a hyperparameter. Higher values mean components can have larger weights between them and still be merged, which leads to larger final segmentations
+ @param size: the size of a disjoint set
+*/
 float calculateTau(float c, int size) { return c / size; }
 
 bool operator<(const edge& a, const edge& b) { return a.weight < b.weight; }
 
+/*
+ Segment an image using graph-based segmentation
+
+ @param image: image to segment
+ @param c: hyperparameter. Larger values mean larger final segmentations.
+ @param minsize: the smallest area in pixels a segmentation can be
+*/
 void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int minsize=100)
 {
     components.makeset(image);
     calculateEdges(image);
     std::sort(edges, edges + num_edges);
 
-    // calculate thresholds
+    // thresholds are used to determine if two components should be merged
     float* threshold = new float[rows*cols];
     for (int idx = 0; idx < rows*cols; idx++) { threshold[idx] = calculateTau(c, 1); }
 
@@ -110,7 +142,7 @@ void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int mins
     }
     delete threshold;
 
-    // component post processing
+    // Post processing removes very small segmentations
     for (int i = 0; i < num_edges; i++)
     {
         int component1_root = components.findRoot(edges[i].a);
@@ -127,11 +159,17 @@ void GraphSegmentation::segmentGraph(const cv::Mat& image, float c=500, int mins
         }
     }
 }
+
 const int GraphSegmentation::getNumEdges()
 {
     return num_edges;
 }
 
+/*
+ Visualize the final segmentations
+
+ @return an image that shows each segmentation and their bounding boxes
+*/
 cv::Mat GraphSegmentation::drawSegments()
 {
     cv::Mat canvas = cv::Mat::zeros(rows, cols, CV_8UC1);
