@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include "opencv2/core/core.hpp"
 #include "DisjointSet.h"
+#include <algorithm>
 
 // how to implement unordered_map with pair as key
 // https://www.geeksforgeeks.org/how-to-create-an-unordered_map-of-pairs-in-c/
@@ -17,11 +18,20 @@ void DisjointSet::makeset(cv::Mat const& image)
     delete components;
     components = new component[rows*cols];
 
-    for (int idx = 0; idx < rows*cols; idx++)
+    int idx;
+    for (int row = 0; row < rows; row++)
     {
-        components[idx].parent = idx;
-        components[idx].rank = 0;
-        components[idx].size = 1;
+        for (int col = 0; col < cols; col++)
+        {
+            idx = row * cols + col;
+            components[idx].parent = idx;
+            components[idx].rank = 0;
+            components[idx].size = 1;
+            components[idx].minX = col;
+            components[idx].maxX = col;
+            components[idx].minY = row;
+            components[idx].maxY = row;
+        }
     }
     num_components = rows * cols;
 }
@@ -45,10 +55,12 @@ void DisjointSet::mergeSets(int p1, int p2)
     // merge the two sets based on their rank / depth
     // larger ranked set consunmes the lower ranked one
     // if they are the same, the depth has effectively increased
+    int final_component;
     if (components[p1root].rank < components[p2root].rank)
     {
         components[p1root].parent = p2root;
         components[p2root].size += components[p1root].size;
+        final_component = p2root;
     }
     else 
     {
@@ -58,7 +70,24 @@ void DisjointSet::mergeSets(int p1, int p2)
         {
             components[p1root].rank++;
         }
+        final_component = p1root;
     }
+    // update bounding box
+    components[final_component].minX = std::min(components[p1root].minX, components[p2root].minX);
+    components[final_component].minY = std::min(components[p1root].minY, components[p2root].minY);
+    components[final_component].maxX = std::max(components[p1root].maxX, components[p2root].maxX);
+    components[final_component].maxY = std::max(components[p1root].maxY, components[p2root].maxY);
+
     num_components--;
+}
+
+BoundingBox DisjointSet::getBoundingBoxCoordinates(int root)
+{
+    BoundingBox boundingbox;
+    boundingbox.minX = components[root].minX;
+    boundingbox.minY = components[root].minY;
+    boundingbox.width = components[root].maxX - components[root].minX;
+    boundingbox.height = components[root].maxY - components[root].minY;
+    return boundingbox;
 }
 

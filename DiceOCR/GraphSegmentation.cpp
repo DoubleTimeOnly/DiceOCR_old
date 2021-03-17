@@ -1,6 +1,9 @@
 #include "opencv2/core/core.hpp"
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
 #include "GraphSegmentation.h"
 #include "DisjointSet.h"
+#include <unordered_set>
 
 uchar calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, int col2)
 {
@@ -134,17 +137,27 @@ cv::Mat GraphSegmentation::drawSegments()
     cv::Mat canvas = cv::Mat::zeros(rows, cols, CV_8UC1);
     cv::Mat color_palette(rows*cols, 1, CV_8UC1);
     cv::randu(color_palette, 0, 255);
+    std::unordered_set<int> visited_components = {};
 
     // find number of distinct components
+    int p, component_root;
     for (int row = 0; row < rows; row++)
     {
         for (int col = 0; col < cols; col++)
         {
-            int p = flattenedIdx(row, col, cols);
-            int component_root = components.findRoot(p);
+            p = flattenedIdx(row, col, cols);
+            component_root = components.findRoot(p);
             uchar color = color_palette.at<uchar>(component_root, 0);
             canvas.at<uchar>(row, col) = color;
+
+            // draw bboxes only once
+            if (visited_components.find(component_root) == visited_components.end()) { visited_components.insert(component_root); }
         }
+    }
+    for (const auto& component : visited_components)
+    {
+        BoundingBox bbox = components.getBoundingBoxCoordinates(component);
+        cv::rectangle(canvas, cv::Rect(bbox.minX, bbox.minY, bbox.width, bbox.height), cv::Scalar(255));
     }
     return canvas;
 }

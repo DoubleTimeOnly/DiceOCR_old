@@ -17,6 +17,12 @@ struct component
     int parent;
     int rank;
     int size;
+    int minX = 0, minY = 0, maxX = 0, maxY = 0;
+};
+
+struct BoundingBox
+{
+    int minX, minY, width, height;
 };
 
 class DisjointSet
@@ -34,6 +40,7 @@ public:
     void makeset(cv::Mat const& image);
     int findRoot(int p);
     void mergeSets(int p1, int p2);
+    BoundingBox getBoundingBoxCoordinates(int root);
 
     const size_t getSetSize();
     const int findRank(int p) { return this->components[findRoot(p)].rank; }
