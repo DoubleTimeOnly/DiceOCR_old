@@ -3,6 +3,8 @@
 #include "../DiceOCR/DisjointSet.cpp"
 #include "../DiceOCR/GraphSegmentation.h"
 #include "../DiceOCR/GraphSegmentation.cpp"
+#include "../DiceOCR/SVM.h"
+#include "../DiceOCR/SVM.cpp"
 #include "opencv2/core/core.hpp"
 #include "opencv2/imgcodecs/imgcodecs.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -159,4 +161,46 @@ TEST(DisjointSetTests, CanGetROIsOfSegmentations)
     rois.clear();
     segmentationgraph.getROIs(rois, 200, 200);
     EXPECT_EQ(rois.size(), 1);
+}
+
+TEST(SVMTests, SVMClassifies)
+{
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+    GraphSegmentation segmentationgraph;
+    segmentationgraph.segmentGraph(grayscale_image);
+    std::vector<cv::Rect> rois;
+    segmentationgraph.getROIs(rois, 200, 200);
+    EXPECT_EQ(rois.size(), 1);
+    cv::Mat cropped_image;
+    SVM svm = SVM(40000, 2, 42);
+    for (cv::Rect roi : rois)
+    {
+        cropped_image = grayscale_image(roi);
+        cv::resize(cropped_image, cropped_image, cv::Size(200, 200));
+        svm.loss(cropped_image.reshape(1, 1), cropped_image, 0.1);
+        cv::imshow("image", cropped_image);
+        cv::waitKey();
+    }
+}
+
+TEST(SVMTests, CanPreprocessImages)
+{
+    cv::Mat grayscale_image = cv::imread("./test_disjointset/test_images/d20_grayscale.PNG", cv::IMREAD_GRAYSCALE);
+    EXPECT_FALSE(grayscale_image.empty());
+
+    cv::Mat batch = grayscale_image.reshape(1, 1);
+
+    for (int batch_size = 0; batch_size < 5; batch_size++)
+    {
+        cv::vconcat(batch, batch, batch);
+    }
+    SVM svm(batch.cols, 2, 42);
+    svm.calculateMeanStDev(batch);
+    svm.preprocessBatch(batch);
+    EXPECT_EQ(cv::sum(svm.getBatchMean())[0], cv::sum(grayscale_image)[0]);
+    EXPECT_EQ(cv::sum(svm.getBatchStDev())[0], 0);
+
+    // cv::imshow("mean image", svm.getBatchMean().reshape(1, grayscale_image.rows) / 255);
+    // cv::waitKey();
 }

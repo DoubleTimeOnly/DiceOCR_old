@@ -130,12 +130,14 @@
     <ClCompile Include="DisjointSet.cpp" />
     <ClCompile Include="GraphSegmentation.cpp" />
     <ClCompile Include="ImageProcessing.cpp" />
+    <ClCompile Include="SVM.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CaptureImage.h" />
     <ClInclude Include="DisjointSet.h" />
     <ClInclude Include="GraphSegmentation.h" />
     <ClInclude Include="ImageProcessing.h" />
+    <ClInclude Include="SVM.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

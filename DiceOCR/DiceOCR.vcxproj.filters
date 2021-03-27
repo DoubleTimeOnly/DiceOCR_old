@@ -27,6 +27,9 @@
     <ClInclude Include="GraphSegmentation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SVM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CaptureImage.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GraphSegmentation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SVM.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
