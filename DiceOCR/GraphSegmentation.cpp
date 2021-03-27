@@ -15,8 +15,8 @@
 uchar calculateEdgeWeight(const cv::Mat& image, int row1, int col1, int row2, int col2)
 {
     // Mat.at is (y,x)
-    uchar intensity1 = image.at<uchar>(row1, col1);
-    uchar intensity2 = image.at<uchar>(row2, col2);
+    int intensity1 = (int)image.at<uchar>(row1, col1);
+    int intensity2 = (int)image.at<uchar>(row2, col2);
     uchar weight = std::abs(intensity1 - intensity2);
     return weight;
 }
@@ -52,7 +52,6 @@ void GraphSegmentation::calculateEdges(const cv::Mat& image)
     {
         for (int col = 0; col < cols; col++)
         {
-            float max_weight = 0.0;
             p1 = flattenedIdx(row, col, cols);
             // check vertical edges
             if (row < rows - 1)
